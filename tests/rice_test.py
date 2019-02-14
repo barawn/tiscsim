@@ -20,6 +20,34 @@ freq = 288.0E6
 amplitude = 1.0
 phase = None
 
+def sigNoiseCW(cw=0.1, snr=1):
+    signal = Signal.Signal()
+    signal.initializeFilter()
+    signal.runFilter(np.random.normal(0, noise, 1024))
+
+    angularFreq = freq*(2*np.pi)
+    angularFreqInSampleUnits = angularFreq/fs
+
+    if phase = None:
+        phase = np.random.ranf()*2*np.pi
+
+    phase = phase + 20*np.pi
+    numSampleOffset = int(np.round(phase/angularFreqInSampleUnits))
+    roundedPhase = numSampleOffset*angularFreqInSampleUnits
+    t_prefeed = np.arange(numSampleOffset)/fs
+    prefeed = cw*np.sin(angularFreq*t_prefeed)
+    prefeed_noise = np.random.normal(0, noise, numSampleOffset)
+    prefeed_out = signal.runFilter(prefeed+prefeed_noise)
+    cw = cw*np.sin(angularFreq*t+roundedPhase)
+    gaus = np.random.normal(0, noise, samples)
+    # add the impulse
+    gaus[10] = gaus[10] + snr/sig.impulseNorm
+
+    noisyEmiSignal = cw + gaus
+    filtData = sig.runFilter(noisyEmiSignal)
+
+    return filtData
+
 def runRiceTest(amplitude=None, phase=None):
 
     signal = Signal.Signal()
@@ -185,5 +213,5 @@ def plotRiceVersusAmplitude(results):
 #results = riceVersusAmplitude()
 #plotRiceVersusAmplitude(results)
 
-res = runRiceTest(amplitude=0)
-print np.mean(np.abs(hilbert(res[1])))
+#res = runRiceTest(amplitude=0)
+#print np.mean(np.abs(hilbert(res[1])))
